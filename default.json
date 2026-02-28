@@ -3,6 +3,7 @@
   "extends": [
     "config:best-practices",
     ":automergeMinor",
+    ":automergePr",
     ":disableDependencyDashboard",
     ":enablePreCommit",
     "group:allNonMajor",
