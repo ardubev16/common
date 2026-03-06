@@ -9,5 +9,14 @@
     "group:allNonMajor",
     "security:openssf-scorecard"
   ],
-  "reviewers": ["ardubev16"]
+  "reviewers": ["ardubev16"],
+  "packageRules": [
+    {
+      "groupName": "Actions & Checks",
+      "matchManagers": ["github-actions", "pre-commit"],
+      "separateMajorMinor": false,
+      "separateMinorPatch": false,
+      "automerge": true
+    }
+  ]
 }
