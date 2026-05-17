@@ -10,6 +10,7 @@
     "security:openssf-scorecard"
   ],
   "reviewers": ["ardubev16"],
+  "minimumReleaseAge": "3 days",
   "packageRules": [
     {
       "groupName": "Actions & Checks",
