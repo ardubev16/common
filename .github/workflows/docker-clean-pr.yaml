@@ -12,10 +12,6 @@ on:
         description: "Pull request number whose pr-<number> tagged image should be deleted"
         type: number
         required: true
-    secrets:
-      package-token:
-        description: "Token with delete:packages scope, needed when the package is owned by a personal account rather than an org (falls back to GITHUB_TOKEN)"
-        required: false
 
 permissions:
   packages: write
@@ -29,4 +25,3 @@ jobs:
         with:
           package: ${{ inputs.image-name }}
           tags: pr-${{ inputs.pr-number }}
-          token: ${{ secrets.package-token || secrets.GITHUB_TOKEN }}
