@@ -1,0 +1,29 @@
+name: Python Tests
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "Python version to install (defaults to the version pinned in .python-version)"
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8
+
+      - name: Set up Python
+        run: uv python install ${{ inputs.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Run tests
+        run: uv run pytest
