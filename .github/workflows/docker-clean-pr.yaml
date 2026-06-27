@@ -1,0 +1,45 @@
+name: Docker Clean PR Image
+
+on:
+  workflow_call:
+    inputs:
+      image-name:
+        description: "Package/image name on GHCR (defaults to the calling repository's name)"
+        type: string
+        required: false
+        default: ${{ github.event.repository.name }}
+      pr-number:
+        description: "Pull request number whose pr-<number> tagged image should be deleted"
+        type: number
+        required: true
+
+permissions:
+  packages: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find PR image version id
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          PACKAGE: ${{ inputs.image-name }}
+          TAG: pr-${{ inputs.pr-number }}
+        run: |
+          for scope in orgs users; do
+            if versions=$(gh api "/${scope}/${OWNER}/packages/container/${PACKAGE}/versions" --paginate 2>/dev/null); then
+              break
+            fi
+          done
+          id=$(echo "$versions" | jq -r --arg tag "$TAG" 'first(.[] | select(.metadata.container.tags[]? == $tag) | .id) // empty')
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: Delete PR image
+        if: steps.version.outputs.id != ''
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ inputs.image-name }}
+          package-type: container
+          package-version-ids: ${{ steps.version.outputs.id }}
