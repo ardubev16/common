@@ -1,4 +1,4 @@
-name: Docker Build and Clean
+name: Docker Build
 
 on:
   workflow_call:
@@ -19,26 +19,18 @@ on:
         required: false
         default: "Dockerfile"
       tags:
-        description: "Tag rules passed to docker/metadata-action"
+        description: "Tag rules passed to docker/metadata-action. Include type=ref,event=pr to tag pull request builds as pr-<number>"
         type: string
         required: false
         default: |
           type=ref,event=tag
           type=ref,event=branch
+          type=ref,event=pr
       push:
         description: "Whether to push the built image to GHCR"
         type: boolean
         required: false
         default: true
-      keep-versions:
-        description: "Number of package versions to keep when cleaning up old/untagged images"
-        type: number
-        required: false
-        default: 5
-    secrets:
-      package-token:
-        description: "Token with delete:packages scope, needed when the package is owned by a personal account rather than an org (falls back to GITHUB_TOKEN)"
-        required: false
 
 permissions:
   contents: read
@@ -77,17 +69,3 @@ jobs:
           push: ${{ inputs.push }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
-
-  clean:
-    needs: build
-    if: inputs.push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete old/untagged image versions
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: ${{ inputs.image-name }}
-          package-type: container
-          min-versions-to-keep: ${{ inputs.keep-versions }}
-          delete-only-untagged-versions: true
-          token: ${{ secrets.package-token || secrets.GITHUB_TOKEN }}
