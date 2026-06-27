@@ -10,5 +10,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8
+
       - name: Run prek
-        uses: j178/prek-action@v2
+        run: uvx prek run --all-files
